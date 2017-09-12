@@ -144,8 +144,8 @@
 
                   <g:if test="${biocacheRecordsAvailable && !grailsApplication.config.disableLoggerLinks?.toBoolean()}">
                   <div id='usage-stats' style="">
-                    <h2><g:message code="public.show.oc.label07" /></h2>
-                    <div id='usage'></div>
+                    <h4><a href="#usage" data-toggle="collapse"><g:message code="public.show.oc.label07" /></a></h4>
+                    <div id='usage' class="collapse"></div>
                   </div>
                   </g:if>
 
@@ -285,6 +285,7 @@
                           <div id="iehack"></div>
                     </g:if>
                   </div>
+                   %{--
                   <div class="span4">
                     <div id="progress" class="well">
                         <div class="progress">
@@ -293,6 +294,7 @@
                         <p class="caption"><span id="speedoCaption"><g:message code="public.show.speedocaption" />.</span></p>
                     </div>
                   </div>
+                  --}%
               </div>
             </div>
             <div id="imagesTab" class="tab-pane">
