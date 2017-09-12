@@ -1,18 +1,39 @@
 language: groovy
 jdk:
-- oraclejdk7
+- openjdk7
 sudo: false
-branches:
-  only:
-  - master
 before_install:
- - wget -q https://raw.githubusercontent.com/AtlasOfLivingAustralia/travis-build-configuration/master/ala_common.sh
- - chmod +x ala_common.sh
- - source ./ala_common.sh
- - ala_travis_grails_setup_env
+- export TZ=Europe/Stockholm
+- date
+- rm -rf ~/.sdkman
+- curl -s http://get.sdkman.io | bash
+- echo "sdkman_auto_answer=true" > ~/.sdkman/etc/config
+- source ~/.sdkman/bin/sdkman-init.sh
+- GRAILS_VERSION=`grep '^app\.grails\.version=' ./application.properties | sed -e
+  's/^app\.grails\.version=//g'`
+- sdk install grails $GRAILS_VERSION || true
+before_script:
+- GRAILS_VERSION_NUMBER=`echo $GRAILS_VERSION | sed -e 's/\.[0-9]*$//g' -e 's/\.//g'
+  | tr -d "\r"`
+- echo "GRAILS_VERSION_NUMBER:$GRAILS_VERSION_NUMBER"
+- GRAILS_SETTINGS_FILE="travis_grails_settings_new.groovy"
+- if [ "$GRAILS_VERSION_NUMBER" -lt "23" ]; then GRAILS_SETTINGS_FILE="travis_grails_settings_old.groovy";
+  fi;
+- echo "GRAILS_SETTINGS_FILE:$GRAILS_SETTINGS_FILE"
+- mkdir -p ~/.grails
+- wget -q -O ~/.grails/settings.groovy https://raw.githubusercontent.com/AtlasOfLivingAustralia/travis-build-configuration/master/$GRAILS_SETTINGS_FILE
 script:
- - ala_travis_grails_build
-env:
-  global:
-  - secure: anZyiypNFsFqqG4i6qpr3BTD9/yOYSTeW+MIkWKDR68VuY+IAxLCLdDYFUg+lNQbIpiZy8OoLigdgY0AxYw+/IliT/hxBjI64vDEQTkwHI6syb/TAnEdyvWIRtXxj7LqCcRrco1qhNcKD+eYUb4a3/9lRCh3ADhXIh8pFA+1N+s=
-  - secure: BBwEK7eVHFHyE+Hrg/T2dK670jvhvAY56P8KNYslr2V1puD8f5m122TfIbpbltBFJ/oF+xXl3LCVWCPE7wuY1PP14TmLJY0zqARQGsj35c4H0I85+OGVvwp8McX57rEfSnxUYxlVBAlj1xq0U6nq8Bm5Gmk0m/vKEGdvSxvTRGA=
+- grails clean && grails refresh-dependencies --non-interactive && grails prod war
+  --non-interactive
+deploy:
+  provider: releases
+  api_key:
+    secure: gorx0tIbeBpvBEROmDhaKCe4nQ/Ir1decTxuQ7X5GZQ5jplVEFDrO6jXonQyhSgGrcWV7f4CELpf05bv9BliNKnq0w2AauHJmBNVMAJxRPfYb74LmOc8LzbrrwTEYLX1a1xgeAJfDjSsxPrAlxaKwX6EPu+C7NF4X6FBXJFQDg6HIgJZtOCCOS6ExC68juUL6jEWuQgI39rQrduytsLqZD3Aci8nov/a1Hz+/8oUDnEahzlqtUG3yPIfvcdFXCPE9KSKf4z8vcpPu4n6aHIa+NCfUQ2HzYjX9wHZdih30w1LM4iGvEEMF4H6eZi8QLK4N9NZPCxxcaC6nmZZ5OtCE7/WY8ZHQ/3JhCj6jPLJjajKs7LDAXFWRScXZeeBKTqvXJRM993QcroqJ8UGp/aSZYWvb3Ei55IutbpoO9NJ32o2JlEeZ3n39UAy7NbO9MFpV3poAmzY7MN3M2MkCBx5n+W/NYJnO7htmYuh59vcr1UqMedgKjOtwZNPo1hZ3x+p/8jk83EnyToRk4abs/UzGcfHY5qR6vf+tAmMU8Z72E+ounn6+aU3nG3K2hL1+v+mO1U7OvyCcpnBEOh4xAWGzqKgMqNiR4XLtWu/3EDEzgA4IaRg3Pm/iIOc/5fogCQAkgLh1IBaLBsG9sjJwApk2B3958uJA8pqvgEgIS6IA+U=
+  file_glob: true
+  file: target/ala-collectory-*.war
+  skip_cleanup: true
+  overwrite: true
+  on:
+    repo: bioatlas/ala-collectory
+    all-branches: true
+    tags: true
