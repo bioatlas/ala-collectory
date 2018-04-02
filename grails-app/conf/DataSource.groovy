@@ -1,11 +1,10 @@
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
 
 dataSource {
     pooled = true
     driverClassName = "com.mysql.jdbc.Driver"
     username = "root"
     password = ""
-    logSql = false
+//    logSql = true
 }
 hibernate {
     cache.use_second_level_cache=true
@@ -18,17 +17,18 @@ environments {
         dataSource {
             dialect = org.hibernate.dialect.MySQL5InnoDBDialect
             dbCreate = "update" // one of 'create', 'create-drop','update'
-            url = "jdbc:mysql://localhost:3306/collectory?autoReconnect=true&connectTimeout=0"
+            url = "jdbc:mysql://localhost:3306/collectory?autoReconnect=true&connectTimeout=0&useSSL=false"
             username = "root"
             password = ""
+//            logSql = true
         }
     }
     test {
         dataSource {
             dialect = org.hibernate.dialect.MySQL5InnoDBDialect
             dbCreate = "update"
-            url = "jdbc:mysql://localhost:3306/collectory?autoReconnect=true&connectTimeout=0"
-            logSql = false
+            url = "jdbc:mysql://localhost:3306/collectory?autoReconnect=true&connectTimeout=0&useSSL=false"
+//            logSql = true
             username = "root"
             password = ""
             properties {
@@ -47,7 +47,7 @@ environments {
         dataSource {
             dialect = org.hibernate.dialect.MySQL5InnoDBDialect
             dbCreate = "update"
-            url = "jdbc:mysql://localhost:3306/collectory?autoReconnect=true&connectTimeout=0"
+            url = "jdbc:mysql://localhost:3306/collectory?autoReconnect=true&connectTimeout=0&useSSL=false"
             logSql = false
             properties {
                 maxActive = 50
